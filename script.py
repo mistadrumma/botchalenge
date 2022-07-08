@@ -1,11 +1,8 @@
 import logging
 import os
-
-
 import httplib2
 from googleapiclient.discovery import build
 from oauth2client.service_account import ServiceAccountCredentials
-
 import aiogram.utils.markdown as md
 from aiogram import Bot, Dispatcher, types
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
@@ -15,23 +12,18 @@ from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types import ParseMode, BotCommand, ReplyKeyboardMarkup, CallbackQuery, Message
 from aiogram.utils import executor
 from aiogram_calendar import simple_cal_callback, SimpleCalendar, dialog_cal_callback, DialogCalendar
-
 import firebase_admin
 from firebase_admin import credentials, storage
 from firebase_admin import firestore
 from firebase_admin import db
 
-
-
 logging.basicConfig(level=logging.INFO)
 
 API_TOKEN = '5572595899:AAHgzD6Mf7hSkuQX4pMtO_BM_O8lPGfxAbU'
 
-
 bot = Bot(token=API_TOKEN)
 
 #firebase conf
-
 cred = credentials.Certificate("secrets/botchelenge-firebase-adminsdk-l0l7c-47a0f4fa6f.json")
 firebase_admin.initialize_app(cred, {
     'databaseURL':'https://botchelenge-default-rtdb.europe-west1.firebasedatabase.app/',
@@ -39,11 +31,9 @@ firebase_admin.initialize_app(cred, {
 })
 db = firestore.client()
 
-
 # For example use simple MemoryStorage for Dispatcher.
 Memorystorage = MemoryStorage()
 dp = Dispatcher(bot, storage=Memorystorage)
-
 
 start_kb = ReplyKeyboardMarkup(resize_keyboard=True,)
 start_kb.row('Navigation Calendar', 'Dialog Calendar')
@@ -54,7 +44,6 @@ async def set_commands(bot: Bot):
     ]
     await bot.set_my_commands(commands)
 
-
 # States
 class Form(StatesGroup):
     startState = State()
@@ -63,10 +52,6 @@ class Form(StatesGroup):
     countStep = State()
     imageArtifact = State()
 
-
-
-
-
 @dp.message_handler(commands='start')
 async def cmd_start(message: types.Message):
     """
@@ -74,18 +59,14 @@ async def cmd_start(message: types.Message):
     """
     # Set state
     await Form.startState.set()
-
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
     markup.add("Начать")
     await message.answer("Привет! Я чат-бот проекта «Diasoft Step challenge  – 2022». Присоединяйся к нам, вместе мы делаем доброе дело!", reply_markup=markup)
 
-
 @dp.message_handler(state=Form.startState)
 async def process_start(message: types.Message, state: FSMContext):
     # Update state and data
-
     markup = types.ReplyKeyboardRemove()
-
     users_ref = db.collection(u'users')
     docs = users_ref.stream()
     find_user = False
@@ -107,24 +88,20 @@ async def process_start(message: types.Message, state: FSMContext):
         await message.answer("Пожалуйста, представься! Напиши Фамилию Имя Отчество", reply_markup=markup)
         await Form.next()
 
-
 @dp.message_handler(state=Form.fullName)
 async def process_name(message: Message, state: FSMContext):
     """
     Process user name
     """
-
     await Form.next()
     async with state.proxy() as data:
         data['name'] = message.text
-
     doc_ref = db.collection(u'users').document(message.from_user.username)
     doc_ref.set({
         u'fullName': data['name'],
     })
 
     await message.answer("Привет, " + data['name'] + "! Укажи день, за который ты вносишь результат?",  reply_markup= await SimpleCalendar().start_calendar())
-
 
 # simple calendar usage
 @dp.callback_query_handler(simple_cal_callback.filter(), state=Form.dateTime)
@@ -138,10 +115,6 @@ async def process_simple_calendar(callback_query: CallbackQuery, callback_data: 
             f'Пожалуйста, укажи количество пройденных шагов',
         )
 
-
-
-
-
 # You can use state '*' if you need to handle all states
 @dp.message_handler(state='*', commands='cancel')
 @dp.message_handler(Text(equals='cancel', ignore_case=True), state='*')
@@ -152,25 +125,18 @@ async def cancel_handler(message: types.Message, state: FSMContext):
     current_state = await state.get_state()
     if current_state is None:
         return
-
     logging.info('Cancelling state %r', current_state)
     # Cancel state and inform user about it
     await state.finish()
     # And remove keyboard (just in case)
     await message.reply('Cancelled.', reply_markup=types.ReplyKeyboardRemove())
 
-
-
-
-# Check age. countStep gotta be digit
 @dp.message_handler(lambda message: not message.text.isdigit(), state=Form.countStep)
 async def process_count_invalid(message: types.Message, state: FSMContext):
     """
     If age is invalid
     """
     return await message.reply("Укажи,пожалуйста, числовые значения")
-
-
 
 @dp.message_handler(lambda message: message.text.isdigit(), state=Form.countStep)
 async def process_countstep(message: types.Message, state: FSMContext):
@@ -184,8 +150,6 @@ async def process_countstep(message: types.Message, state: FSMContext):
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
         markup.add("Попробовать еще")
         await message.answer("Ты молодец, но в зачет идут 10 000+ шагов в день", reply_markup=markup)
-
-
 
 @dp.message_handler(state=Form.imageArtifact, content_types=['photo'])
 async def process_image(message: types.Message, state: FSMContext):
@@ -212,9 +176,6 @@ async def process_image(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         data['imageArtifact'] = blob.public_url
 
-
-
-
     async with state.proxy() as data:
         # data['name'] = "@" + message.from_user.username
 
@@ -225,8 +186,6 @@ async def process_image(message: types.Message, state: FSMContext):
             u'dateTime': data['date'],
             u'imageArtifact': data['imageArtifact']
         })
-
-
 
         # And send message
         await bot.send_message(
