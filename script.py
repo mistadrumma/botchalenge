@@ -1,4 +1,10 @@
 import logging
+import os
+
+
+import httplib2
+from googleapiclient.discovery import build
+from oauth2client.service_account import ServiceAccountCredentials
 
 import aiogram.utils.markdown as md
 from aiogram import Bot, Dispatcher, types
@@ -86,10 +92,8 @@ async def process_start(message: types.Message, state: FSMContext):
     for doc in docs:
         user = doc.to_dict()
         if doc.id == message.from_user.username:
-            print(doc.id, message.from_user.username)
             find_user = True
             current_user = user
-    print(find_user)
     if find_user:
         async with state.proxy() as data:
             data['name'] = current_user['fullName']
@@ -102,9 +106,6 @@ async def process_start(message: types.Message, state: FSMContext):
 
         await message.answer("Пожалуйста, представься! Напиши Фамилию Имя Отчество", reply_markup=markup)
         await Form.next()
-
-
-
 
 
 @dp.message_handler(state=Form.fullName)
@@ -197,6 +198,15 @@ async def process_image(message: types.Message, state: FSMContext):
 
     # Opt : if you want to make public access from the URL
     blob.make_public()
+    if (os.path.isfile('screen_'+ message.photo[-1].file_unique_id +'.png')):
+
+        # os.remove() function to remove the file
+        os.remove('screen_'+ message.photo[-1].file_unique_id +'.png')
+
+        # Printing the confirmation message of deletion
+        print("File Deleted successfully")
+    else:
+        print("File does not exist")
 
     print("your file url", blob.public_url)
     async with state.proxy() as data:
@@ -229,6 +239,22 @@ async def process_image(message: types.Message, state: FSMContext):
             ),
             parse_mode=ParseMode.MARKDOWN,
         )
+        # Запищем информацию в гугл шит
+        service = get_service_sacc()
+        sheet = service.spreadsheets()
+        sheet_id = "1O8ey-FM3QwiYhCwj5DS7ERWsRmaQ8ze06Tu4J2CfwQM"
+
+        body = {
+            'values': [
+                [data['name'], data['date'], data['countStep'], data['imageArtifact']],  # строка
+            ]
+        }
+
+        sheet.values().append(
+        spreadsheetId=sheet_id,
+        range="Лист1!A2:L99",
+        valueInputOption="RAW",
+        body=body).execute()
 
     # Finish conversation
     await state.finish()
@@ -237,7 +263,18 @@ async def process_image(message: types.Message, state: FSMContext):
     markup.add("Добавить шаги")
     await message.answer("Как будешь готов, приходи опять", reply_markup=markup)
 
+def get_service_sacc():
+    """
+    Могу читать и (возможно) писать в таблицы кот. выдан доступ
+    для сервисного аккаунта приложения
+    sacc-1@privet-yotube-azzrael-code.iam.gserviceaccount.com
+    :return:
+    """
+    creds_json = os.path.dirname(__file__) + "/secrets/botchelenge-a3d82165b345.json"
+    scopes = ['https://www.googleapis.com/auth/spreadsheets']
 
+    creds_service = ServiceAccountCredentials.from_json_keyfile_name(creds_json, scopes).authorize(httplib2.Http())
+    return build('sheets', 'v4', http=creds_service)
 
 if __name__ == '__main__':
     executor.start_polling(dp, skip_updates=True)
