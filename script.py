@@ -100,7 +100,6 @@ async def process_name(message: Message, state: FSMContext):
     doc_ref.set({
         u'fullName': data['name'],
     })
-
     await message.answer("Привет, " + data['name'] + "! Укажи день, за который ты вносишь результат?",  reply_markup= await SimpleCalendar().start_calendar())
 
 # simple calendar usage
