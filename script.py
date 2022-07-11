@@ -190,7 +190,7 @@ async def process_image(message: types.Message, state: FSMContext):
         await bot.send_message(
             message.chat.id,
             md.text(
-                md.text('Результат принят. Спасибо за вклад в «Доброе дело»!,', md.bold(data['name'])),
+                md.text('Результат принят. Спасибо за вклад в «Доброе дело»!'),
                 md.text('Дата:', md.code(data['date'])),
                 md.text('Количество шагов:', data['countStep']),
                 sep='\n',
