@@ -61,6 +61,8 @@ async def cmd_start(message: types.Message):
     await Form.startState.set()
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
     markup.add("Начать")
+    photo = InputFile("data/Telega_dobroe_delo-02.png")
+    await bot.send_photo(chat_id=message.chat.id, photo=photo)
     await message.answer("Привет! Я чат-бот проекта «Diasoft Step challenge  – 2022». Присоединяйся к нам, вместе мы делаем доброе дело!", reply_markup=markup)
 
 @dp.message_handler(state=Form.startState)
