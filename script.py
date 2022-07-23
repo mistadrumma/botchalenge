@@ -51,6 +51,7 @@ class Form(StatesGroup):
     countStep = State()
     imageArtifact = State()
 
+
 @dp.message_handler(commands='start')
 async def cmd_start(message: types.Message):
     """
