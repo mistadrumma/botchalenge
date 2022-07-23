@@ -25,7 +25,7 @@ googleapis-common-protos==1.56.3
 grpcio==1.47.0
 grpcio-status==1.47.0
 httplib2==0.20.4
-idna==3.3
+idna==2.5
 jws==0.1.3
 msgpack==1.0.4
 multidict==6.0.2
@@ -38,7 +38,7 @@ pycryptodome==3.4.3
 pyparsing==3.0.9
 python-jwt==2.0.1
 pytz==2022.1
-requests==2.11.1
+
 requests-toolbelt==0.7.0
 rsa==4.8
 six==1.16.0
