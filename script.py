@@ -9,7 +9,7 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters import Text
 from aiogram.dispatcher.filters.state import State, StatesGroup
-from aiogram.types import ParseMode, BotCommand, ReplyKeyboardMarkup, CallbackQuery, Message
+from aiogram.types import ParseMode, BotCommand, ReplyKeyboardMarkup, CallbackQuery, Message, InputFile
 from aiogram.utils import executor
 from aiogram_calendar import simple_cal_callback, SimpleCalendar, dialog_cal_callback, DialogCalendar
 import firebase_admin
@@ -61,7 +61,11 @@ async def cmd_start(message: types.Message):
     await Form.startState.set()
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
     markup.add("Начать")
-    await message.answer("Привет! Я чат-бот проекта «Diasoft Step challenge  – 2022». Присоединяйся к нам, вместе мы делаем доброе дело!", reply_markup=markup)
+    # await message.answer(
+    #     "Привет! Я чат-бот проекта «Diasoft Step challenge  – 2022». Присоединяйся к нам, вместе мы делаем доброе дело!",
+    #     reply_markup=markup)
+    photo = InputFile("./data/Telega_dobroe_delo-02.png")
+    await bot.send_photo(chat_id=message.chat.id, photo=photo, caption='Привет! Я чат-бот проекта «Diasoft Step challenge  – 2022». Присоединяйся к нам, вместе мы делаем доброе дело!', reply_markup=markup)
 
 @dp.message_handler(state=Form.startState)
 async def process_start(message: types.Message, state: FSMContext):
