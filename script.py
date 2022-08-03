@@ -39,7 +39,9 @@ start_kb.row('Navigation Calendar', 'Dialog Calendar')
 
 async def set_commands(bot: Bot):
     commands = [
-        BotCommand(command="/countStep", description="Зарегистрировать шаги"),
+        BotCommand(command="/start", description="Начать"),
+        BotCommand(command="/cancel", description="сброс")
+
     ]
     await bot.set_my_commands(commands)
 
@@ -67,6 +69,8 @@ async def cmd_start(message: types.Message):
     photo = InputFile("./data/Telega_dobroe_delo-02.png")
     await bot.send_photo(chat_id=message.chat.id, photo=photo, caption='Привет! Я чат-бот проекта «Diasoft Step challenge  – 2022». Присоединяйся к нам, вместе мы делаем доброе дело!', reply_markup=markup)
 
+
+@dp.message_handler(Text(equals='Добавить шаги'))
 @dp.message_handler(state=Form.startState)
 async def process_start(message: types.Message, state: FSMContext):
     # Update state and data
@@ -151,7 +155,9 @@ async def process_countstep(message: types.Message, state: FSMContext):
     else:
         await Form.startState.set()
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
-        markup.add("Попробовать еще")
+
+        markup.add("Добавить шаги")
+
         await message.answer("Ты молодец, но в зачет идут 10 000+ шагов в день", reply_markup=markup)
 
 @dp.message_handler(state=Form.imageArtifact, content_types=['photo'])
