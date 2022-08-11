@@ -62,7 +62,7 @@ async def cmd_start(message: types.Message):
     # Set state
     await Form.startState.set()
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True, selective=True)
-    markup.add("Начать")
+    markup.add("Добавить шаги")
     # await message.answer(
     #     "Привет! Я чат-бот проекта «Diasoft Step challenge  – 2022». Присоединяйся к нам, вместе мы делаем доброе дело!",
     #     reply_markup=markup)
