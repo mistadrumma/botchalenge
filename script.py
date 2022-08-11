@@ -75,26 +75,26 @@ async def cmd_start(message: types.Message):
 async def process_start(message: types.Message, state: FSMContext):
     # Update state and data
     markup = types.ReplyKeyboardRemove()
-    users_ref = db.collection(u'users')
-    docs = users_ref.stream()
-    find_user = False
-    for doc in docs:
-        user = doc.to_dict()
-        if doc.id == message.from_user.username:
-            find_user = True
-            current_user = user
-    if find_user:
-        async with state.proxy() as data:
-            data['name'] = current_user['fullName']
-        await Form.dateTime.set()
-        await message.answer("Ты снова с нами, " + current_user['fullName'] + "!",
-                             reply_markup=markup)
-        await message.answer("Укажи день, за который ты вносишь результат?",
-                             reply_markup=await SimpleCalendar().start_calendar())
-    else:
+    # users_ref = db.collection(u'users')
+    # docs = users_ref.stream()
+    # find_user = False
+    # for doc in docs:
+    #     user = doc.to_dict()
+    #     if doc.id == message.from_user.username:
+    #         find_user = True
+    #         current_user = user
+    # if find_user:
+    #     async with state.proxy() as data:
+    #         data['name'] = current_user['fullName']
+    #     await Form.dateTime.set()
+    #     await message.answer("Ты снова с нами, " + current_user['fullName'] + "!",
+    #                          reply_markup=markup)
+    #     await message.answer("Укажи день, за который ты вносишь результат?",
+    #                          reply_markup=await SimpleCalendar().start_calendar())
+    # else:
 
-        await message.answer("Пожалуйста, представься! Напиши Фамилию Имя Отчество", reply_markup=markup)
-        await Form.next()
+    await message.answer("Пожалуйста, представься! Напиши Фамилию Имя Отчество", reply_markup=markup)
+    await Form.next()
 
 @dp.message_handler(state=Form.fullName)
 async def process_name(message: Message, state: FSMContext):
@@ -104,10 +104,10 @@ async def process_name(message: Message, state: FSMContext):
     await Form.next()
     async with state.proxy() as data:
         data['name'] = message.text
-    doc_ref = db.collection(u'users').document(message.from_user.username)
-    doc_ref.set({
-        u'fullName': data['name'],
-    })
+    # doc_ref = db.collection(u'users').document(message.from_user.username)
+    # doc_ref.set({
+    #     u'fullName': data['name'],
+    # })
     await message.answer("Привет, " + data['name'] + "! Укажи день, за который ты вносишь результат?",  reply_markup= await SimpleCalendar().start_calendar())
 
 # simple calendar usage
@@ -188,13 +188,13 @@ async def process_image(message: types.Message, state: FSMContext):
     async with state.proxy() as data:
         # data['name'] = "@" + message.from_user.username
 
-        doc_ref = db.collection(u'users').document(message.from_user.username)
-        doc_ref.set({
-            u'fullName': data['name'],
-            u'countStep': data['countStep'],
-            u'dateTime': data['date'],
-            u'imageArtifact': data['imageArtifact']
-        })
+        # doc_ref = db.collection(u'users').document(message.from_user.username)
+        # doc_ref.set({
+        #     u'fullName': data['name'],
+        #     u'countStep': data['countStep'],
+        #     u'dateTime': data['date'],
+        #     u'imageArtifact': data['imageArtifact']
+        # })
 
         # And send message
         await bot.send_message(
